@@ -1,0 +1,220 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Cursor IDE 专项优化规范
+
+## 核心理念
+最大化 Cursor IDE 的 AI 辅助开发能力，通过智能工具使用和并行处理，显著提升开发效率和代码质量。
+
+## 工具使用策略
+
+### 搜索工具组合使用
+不同搜索工具的最佳使用场景：
+
+- **`codebase_search`**: 语义搜索，理解代码意图和功能
+- **`grep_search`**: 精确模式匹配，查找具体的函数名、变量名
+- **`file_search`**: 模糊文件路径搜索，快速定位文件
+
+### 并行工具调用策略
+
+#### 信息收集阶段
+```typescript
+// ✅ 正确 - 并行执行
+Promise.all([
+  codebase_search("用户认证相关功能"),
+  grep_search("def authenticate"),
+  file_search("auth")
+])
+
+// ❌ 错误 - 串行执行
+codebase_search("用户认证相关功能")
+// 等待结果...
+grep_search("def authenticate") 
+// 等待结果...
+file_search("auth")
+```
+
+#### 文件读取阶段
+当需要了解多个相关文件时，并行读取：
+```typescript
+// ✅ 正确
+Promise.all([
+  read_file("src/auth/models.py"),
+  read_file("src/auth/views.py"),
+  read_file("src/auth/utils.py")
+])
+```
+
+#### 代码修改阶段
+识别无依赖关系的修改，并行执行：
+```typescript
+// ✅ 正确 - 修改不同文件
+Promise.all([
+  edit_file("config/settings.py"),
+  edit_file("src/models.py"),
+  edit_file("tests/test_auth.py")
+])
+```
+
+## 错误处理和恢复
+
+### 自动错误恢复机制
+```python
+def handle_edit_failure():
+    """编辑失败自动恢复流程"""
+    if edit_failed:
+        # 1. 立即尝试 reapply
+        reapply(target_file)
+        
+        if still_failed:
+            # 2. 分析失败原因
+            analyze_failure_reason()
+            
+            # 3. 调整策略重试
+            try_alternative_approach()
+```
+
+### 常见错误处理策略
+1. **应用失败**: 立即使用 `reapply` 工具
+2. **搜索无结果**: 调整关键词，使用不同搜索工具
+3. **文件不存在**: 检查路径，使用 `file_search` 定位
+4. **权限问题**: 检查文件权限，提供解决建议
+
+## 记忆管理优化
+
+### 主动记忆更新
+在关键节点自动更新项目记忆：
+- 重要技术决策确定时
+- 新的设计模式建立时  
+- 常见问题解决方案确认时
+- 用户纠正错误认知时
+
+### 记忆检索策略
+```python
+def smart_memory_usage():
+    """智能记忆使用策略"""
+    # 1. 任务开始前检查相关记忆
+    check_relevant_memories(current_task)
+    
+    # 2. 避免重复错误
+    if has_similar_past_failure():
+        apply_learned_solution()
+    
+    # 3. 复用成功模式
+    if has_successful_pattern():
+        adapt_pattern_to_current_task()
+```
+
+## 上下文完整性保证
+
+### 文件上下文策略
+读取文件时确保充分的上下文：
+- 优先读取完整的函数/类定义
+- 包含相关的导入语句
+- 包含必要的依赖关系
+
+### 项目上下文构建
+```python
+def build_project_context():
+    """构建完整的项目上下文"""
+    parallel_tasks = [
+        read_project_structure(),
+        analyze_dependencies(),
+        review_recent_changes(),
+        check_configuration_files()
+    ]
+    return execute_parallel(parallel_tasks)
+```
+
+## 性能优化技巧
+
+### 减少工具调用次数
+- 一次性读取相关的多个文件
+- 批量执行相似的搜索操作
+- 合并小的编辑操作
+
+### 智能缓存利用
+- 利用已读取的文件内容
+- 复用搜索结果
+- 避免重复的上下文构建
+
+### 预判用户需求
+```python
+def anticipate_user_needs():
+    """预判用户可能的后续需求"""
+    if user_asked_about_function():
+        # 预先读取相关文件
+        preload_related_files()
+        
+    if user_modifying_config():
+        # 预先检查配置依赖
+        check_config_dependencies()
+```
+
+## 质量保证机制
+
+### 实时验证
+每次代码修改后立即验证：
+- 语法正确性检查
+- 导入语句验证
+- 基本逻辑合理性
+
+### 一致性检查
+```python
+def ensure_consistency():
+    """确保修改的一致性"""
+    parallel_checks = [
+        check_naming_consistency(),
+        verify_import_statements(),
+        validate_type_hints(),
+        ensure_documentation_sync()
+    ]
+    return execute_parallel(parallel_checks)
+```
+
+## 协作效率提升
+
+### 沟通优化
+- 使用结构化的响应格式
+- 提供清晰的进度指示
+- 主动报告潜在问题
+
+### 反馈循环优化
+```python
+def optimize_feedback_loop():
+    """优化与用户的反馈循环"""
+    # 1. 快速响应用户请求
+    provide_immediate_acknowledgment()
+    
+    # 2. 并行处理复杂任务
+    execute_parallel_subtasks()
+    
+    # 3. 提供中间结果
+    share_intermediate_progress()
+    
+    # 4. 确认最终结果
+    confirm_completion_with_user()
+```
+
+## 调试和故障排除
+
+### 问题诊断流程
+1. **快速定位**: 使用并行搜索快速定位问题
+2. **上下文分析**: 并行分析相关文件和配置
+3. **解决方案验证**: 在测试环境验证修复方案
+4. **影响评估**: 评估修改对其他部分的影响
+
+### 性能监控
+- 监控工具调用的响应时间
+- 识别并行处理的效率提升
+- 记录最佳实践模式
+
+这些优化策略旨在将 Cursor IDE 的使用效率提升 3-5 倍，同时保证代码质量和开发体验。

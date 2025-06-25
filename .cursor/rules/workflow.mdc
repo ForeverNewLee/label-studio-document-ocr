@@ -1,0 +1,179 @@
+---
+description: 
+globs: .gitignore, *.gitattributes, .github/**, package.json, requirements.txt, go.mod, Cargo.toml, pom.xml
+alwaysApply: false
+---
+---
+description: 
+globs: .gitignore, *.gitattributes, .github/**, package.json, requirements.txt, go.mod, Cargo.toml, pom.xml
+alwaysApply: false
+---
+
+# Git工作流与开发流程规范
+
+## 开发方法论
+
+### 核心原则
+- **文档优先**: 重要设计决策先写文档再实施
+- **渐进式开发**: 小步迭代，持续集成
+- **质量优先**: 代码质量优于开发速度
+- **可追溯性**: 所有变更都有明确的原因和记录
+
+### 开发流程
+1. **需求分析** → 2. **设计** → 3. **实施** → 4. **测试** → 5. **部署** → 6. **监控**
+
+每个阶段都必须有对应的文档和记录。
+
+## Git 工作流规范
+
+### 分支策略
+```
+main                   # 主分支，始终可部署
+├── develop            # 开发分支，集成测试
+├── feature/xxx        # 功能分支
+├── bugfix/xxx         # 错误修复分支
+└── hotfix/xxx         # 紧急修复分支
+```
+
+### 分支命名规范
+- `feature/user-authentication` - 新功能开发
+- `bugfix/login-error-handling` - 错误修复
+- `hotfix/security-patch` - 紧急修复
+- `refactor/database-optimization` - 代码重构
+- `docs/api-documentation` - 文档更新
+
+### 提交信息规范
+**必须遵循 Conventional Commits 规范**:
+* git commit 信息一定要符合以下规范
+```
+<类型>[可选的作用域]: <描述>
+
+[可选的正文]
+
+[可选的脚注]
+```
+
+#### 提交类型
+- `feat`: 新功能
+- `fix`: 错误修复
+- `docs`: 文档更新
+- `style`: 代码格式化（不影响代码运行）
+- `refactor`: 代码重构
+- `test`: 添加或修改测试
+- `chore`: 构建过程或辅助工具的变动
+
+#### 示例
+```bash
+feat(auth): 添加用户登录功能
+
+实现了基于JWT的用户认证系统，包括：
+- 用户注册和登录接口
+- JWT token生成和验证
+- 密码加密存储
+
+Closes #123
+```
+
+### 代码合并规范
+- **必须使用**: `git rebase` 保持线性历史
+- **禁止使用**: `git merge --no-ff` 避免merge提交
+- **代码审查**: 所有代码必须经过审查才能合并
+
+### 合并流程
+```bash
+# 1. 更新本地主分支
+git checkout main
+git pull origin main
+
+# 2. 在功能分支上rebase
+git checkout feature/xxx
+git rebase main
+
+# 3. 解决冲突（如有）
+# 4. 推送并创建PR/MR
+git push origin feature/xxx
+
+# 5. 代码审查通过后合并
+git checkout main
+git merge feature/xxx --ff-only
+git push origin main
+
+# 6. 删除功能分支
+git branch -d feature/xxx
+git push origin --delete feature/xxx
+```
+
+## 代码审查规范
+
+### 审查检查列表
+- [ ] **功能正确性**: 代码实现符合需求
+- [ ] **代码风格**: 遵循项目编码规范
+- [ ] **测试覆盖**: 新代码有相应的测试
+- [ ] **性能影响**: 评估对系统性能的影响
+- [ ] **安全考虑**: 检查潜在的安全风险
+- [ ] **文档更新**: 相关文档是否已更新
+- [ ] **向后兼容**: 是否破坏现有API
+
+### 审查流程
+1. **自检**: 开发者自己先审查代码
+2. **同行审查**: 至少一个同事审查
+3. **自动检查**: CI/CD流水线检查
+4. **合并**: 所有检查通过后合并
+
+## 版本管理
+
+### 版本号规范
+遵循 Semantic Versioning (SemVer):
+- `MAJOR.MINOR.PATCH` (例如: 1.2.3)
+- `MAJOR`: 不兼容的API修改
+- `MINOR`: 向后兼容的功能性新增
+- `PATCH`: 向后兼容的问题修正
+
+### 发布流程
+1. **准备发布**: 创建 release 分支
+2. **版本号**: 更新版本号和CHANGELOG
+3. **测试**: 完整的回归测试
+4. **标签**: 创建版本标签
+5. **部署**: 部署到生产环境
+6. **文档**: 更新相关文档
+
+## 质量保证流程
+
+### 持续集成(CI)
+每次提交必须通过：
+- 代码格式检查
+- 静态代码分析
+- 单元测试运行
+- 集成测试执行
+- 安全扫描检查
+
+### 持续部署(CD)
+- **测试环境**: 自动部署所有合并到develop的代码
+- **预生产环境**: 自动部署release分支
+- **生产环境**: 手动触发，需要审批
+
+### 监控和告警
+- **性能监控**: 响应时间、吞吐量
+- **错误监控**: 异常和错误率
+- **业务监控**: 关键业务指标
+- **基础设施监控**: 服务器资源使用
+
+## 协作规范
+
+### 沟通原则
+- **透明**: 重要决策公开讨论
+- **文档化**: 关键讨论结果要有记录
+- **及时**: 问题和blockers及时沟通
+- **建设性**: 代码审查要给出具体建议
+
+### 会议规范
+- **每日站会**: 同步进度和问题
+- **迭代规划**: 制定下个迭代计划
+- **回顾会议**: 总结经验和改进点
+- **技术分享**: 定期技术知识分享
+
+### 知识管理
+- **文档维护**: 及时更新技术文档
+- **知识分享**: 重要经验要分享给团队
+- **最佳实践**: 总结和推广最佳实践
+- **问题记录**: 记录常见问题和解决方案

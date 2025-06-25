@@ -12,6 +12,7 @@
 Label Studio is an open source data labeling tool. It lets you label data types like audio, text, images, videos, and time series with a simple and straightforward UI and export to various model formats. It can be used to prepare raw data or improve existing training data to get more accurate ML models.
 
 - [Try out Label Studio](#try-out-label-studio)
+- [Development Tools and AI Integration](#development-tools-and-ai-integration)
 - [What you get from Label Studio](#what-you-get-from-label-studio)
 - [Included templates for labeling data in Label Studio](#included-templates-for-labeling-data-in-label-studio)
 - [Set up machine learning models with Label Studio](#set-up-machine-learning-models-with-Label-Studio)
@@ -130,6 +131,74 @@ python label_studio/manage.py collectstatic
 # Start the server in development mode at http://localhost:8080
 python label_studio/manage.py runserver
 ```
+
+## Development Tools and AI Integration
+
+This project includes enhanced development tools and AI-powered coding assistance through integrated Cursor IDE rules.
+
+### Cursor IDE Rules Management
+
+The project integrates with [MyCursorRules](https://github.com/ForeverNewLee/MyCursorRules) for comprehensive AI development assistance. This provides standardized coding practices, workflow guidelines, and optimization rules across all development environments.
+
+#### Initial Setup
+
+For first-time setup, run:
+```bash
+# Add and merge external cursor rules
+make cursor-rules-setup
+```
+
+This will:
+- Add MyCursorRules repository as a Git subtree
+- Merge external rules with existing local rules
+- Preserve all existing configurations
+- Create automatic backups
+
+#### Managing Rules
+
+```bash
+# Check current rules status
+make cursor-rules-status
+
+# Update external rules from remote repository
+make cursor-rules-sync
+
+# Manual operations
+make cursor-rules-add      # Add external rules subtree
+make cursor-rules-update   # Update external rules
+make cursor-rules-merge    # Merge rules
+make cursor-rules-cleanup  # Clean temporary files
+```
+
+#### Multi-Machine Synchronization
+
+The rules are synchronized across machines using Git:
+
+**Primary machine (first setup):**
+```bash
+make cursor-rules-setup
+git add .
+git commit -m "Setup cursor rules integration"
+git push
+```
+
+**Other machines:**
+```bash
+git pull  # Rules are automatically synced
+# Optionally update external rules
+make cursor-rules-sync
+```
+
+#### Available Rules
+
+The integrated rules provide guidance for:
+- **Code Standards**: Python, TypeScript, React development best practices
+- **Workflow Management**: Git workflows, commit conventions, code review processes  
+- **AI Optimization**: Cursor IDE specific optimizations and shortcuts
+- **Project Structure**: Directory organization and file naming conventions
+- **Development Modes**: Research, Plan, Execute, Review, and Innovate phases
+
+For detailed documentation, see [scripts/cursor-rules-integration.md](scripts/cursor-rules-integration.md).
 
 ### Deploy in a cloud instance
 

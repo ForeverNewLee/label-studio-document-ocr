@@ -1,0 +1,7 @@
+
+我想在这个 repo 中加入 @https://github.com/ForeverNewLee/MyCursorRules  这个 repo 的内容。这个 link 内是我维护的 .cursror/rules 内容。
+
+我该怎么维护比较好？
+我有两个要求：1. 在多机器、多地址不影响使用，不影响同一性问题；2. 处理后一定是根目录下的 .cursor/rules 不能有别影响
+
+目前的方案是 subtree  和 如果本地也有相关文件，则合并互补。

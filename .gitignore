@@ -82,3 +82,7 @@ docker-compose.override.yml
 .netlify
 
 CLAUDE.local.md
+
+# Cursor rules integration
+external-cursor-rules/
+.cursor/rules_backup_*/

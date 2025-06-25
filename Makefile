@@ -100,3 +100,23 @@ configure-hooks:
 # Generate swagger.json
 generate-swagger:
 	DJANGO_DB=sqlite LOG_DIR=tmp DEBUG=true LOG_LEVEL=DEBUG DJANGO_SETTINGS_MODULE=core.settings.label_studio poetry run python label_studio/manage.py generate_swagger swagger.json
+
+# Cursor rules management
+cursor-rules-add:
+	./scripts/manage-cursor-rules.sh add
+
+cursor-rules-update:
+	./scripts/manage-cursor-rules.sh update
+
+cursor-rules-merge:
+	./scripts/manage-cursor-rules.sh merge
+
+cursor-rules-status:
+	./scripts/manage-cursor-rules.sh status
+
+cursor-rules-cleanup:
+	./scripts/manage-cursor-rules.sh cleanup
+
+cursor-rules-setup: cursor-rules-add cursor-rules-merge
+
+cursor-rules-sync: cursor-rules-update cursor-rules-merge

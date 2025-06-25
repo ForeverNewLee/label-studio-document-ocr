@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# 项目结构与文档规范
+
+## 核心理念
+本项目采用文档优先、工程化的开发方式。所有关键信息必须通过结构化的文档和记录进行沉淀，确保项目的可维护性和可追溯性。
+
+## 强制目录结构
+**所有文件和目录的创建都必须遵循以下结构：**
+
+### 根目录结构
+```
+./
+├── {project_name}/          # 源代码目录
+├── docs/                    # 结构化文档目录（核心知识库）
+├── cursor-record/           # AI交互记录目录
+├── mcp/                     # 可对外支撑模块
+├── .cursor/rules/           # Cursor IDE 规则文件
+└── tests/                   # 测试文件目录
+```
+
+### 源代码目录 (./{project_name}/)
+- 所有应用程序代码存放于此
+- 内部结构需参考 `docs/technical/directory_structure.md` 的详细设计
+- **重要**: 项目名称需在项目初期与我确认
+
+### 结构化文档目录 (./docs/)
+**这是项目的"单一事实来源"(Single Source of Truth)**
+
+#### 分阶段文档结构
+```
+docs/
+├── requirements/            # 需求分析文档
+├── product_design/         # 产品设计文档  
+├── technical/              # 技术方案文档
+├── _index.md              # 文档导航索引
+└── assets/                # 图片、图表等资源
+```
+
+#### 文档管理规则
+1. **版本同步**: 文档必须与代码同步更新
+2. **相对引用**: 所有资源使用相对路径引用
+3. **索引文件**: 复杂目录必须包含 `_index.md` 或 `README.md`
+4. **多媒体支持**: 支持图片 (`.png`, `.jpg`)、图表 (`.svg`)、PDF文档
+
+#### 索引文件要求
+当目录文件过多时，必须创建索引文件，包含：
+- 文件概览和用途说明
+- 文件间的逻辑关系
+- 推荐的阅读顺序
+- 依赖关系说明
+
+### AI交互记录目录 (./cursor-record/)
+用于存放与 AI 的原始交互记录，按开发阶段分类：
+```
+cursor-record/
+├── requirements_analysis.md
+├── product_design.md  
+├── technical_architecture_design.md
+├── development.md
+├── testing.md
+└── deployment.md
+```
+
+### 可对外支撑模块 (./mcp/)
+独立的、可对外提供能力支撑的模块应放置在此目录。
+
+## 文档质量标准
+1. **结构化**: 使用统一的 Markdown 格式
+2. **完整性**: 包含必要的上下文和背景信息  
+3. **可读性**: 清晰的标题层次和逻辑结构
+4. **可维护性**: 及时更新，避免过时信息

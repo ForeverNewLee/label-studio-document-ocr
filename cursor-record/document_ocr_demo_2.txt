@@ -1,0 +1,162 @@
+找出以下文档中没有被[MASK]框住的实体，将你找到的实体加入清单，并补全/检查清单中的实体类别。
+
+需要找的实体类别有：
+1.人名、人名缩写、姓、名
+2.地址、街道名、街道号、邮编、国家、美国的州、城市
+3.护照号、身份证号、驾照号、银行账号、卡号
+4.时间戳、出生日期、ip地址、硬件地址
+----------------------------------------------------------
+Earnings
+Pay Rate
+Hours
+Units
+Current  Amount
+YTD Amount
+Adjustment (With Wages)            
+$0.00
+$76.88
+Attendance Bonus                   
+$0.00
+$280.00
+Holiday                            
+$0.00
+$94.00
+Holiday                            
+$12.7500
+8.0000
+$102.00
+$408.00
+Overtime                           
+$19.1250
+2.9300
+$56.04
+$2,532.55
+Overtime                           
+$0.00
+$1,478.75
+Regular                            
+$0.00
+$6,167.70
+Regular                            
+$12.7500
+33.1600
+$422.79
+$16,469.33
+Sick                               
+$0.00
+$102.00
+Vacation                           
+$0.00
+$502.00
+Gross Earnings
+44.0900
+0.00
+$580.83
+$28,111.21
+Deductions
+Employer
+Amount
+Employer
+YTD Amount
+Dental Pre Tax                     
+$15.05
+$737.45
+$0.00
+$0.00
+Employee Purchases                 
+$0.00
+$26.00
+$0.00
+$0.00
+Vision Pre Tax                     
+$4.18
+$204.82
+$0.00
+$0.00
+Net Earnings
+$501.33
+$24,203.89
+$0.00
+$0.00
+Taxes
+Fed Income Tax                     
+$17.31
+$860.61
+Fed Medicare                       
+$8.14
+$394.00
+Fed Soc Sec                        
+$34.82
+$1,684.44
+Accrual Plans
+Current Amount
+Accrued Amount
+Taken Amount
+Available Amount
+SICK                                              
+0.0000
+8.0000
+8.0000
+0.0000
+VACATION                                          
+0.0000
+40.0000
+40.0000
+0.0000
+Direct Deposit Distribution
+Dep Chkg xxxxxx
+$50.00
+$700.00
+Dep Chkg xxxxxx
+$451.33
+$9,103.56
+FIVE HUNDRED ONE AND 33 / 100 ********** Dollars
+Not a Check
+****** NON - NEGOTIABLE ******
+0000103580
+Date: [MASK_12/06/2019]
+DOUBLE R BRAND FOODS LLC                                    
+[MASK_800 ELLEN TROUT DRIVE]                   
+[MASK_LUFKIN], TEXAS [MASK_75904]                     
+                                       
+Department: 000 / 000 / 0400
+NON NEGOTIABLE
+Direct Deposit Advice
+  
+ 
+$501.33
+PAY
+To the order of:
+[MASK_[MASK_LADISLADA] [MASK_ANDRADE]]
+[MASK_443 DOUBLE TREE]               
+[MASK_LUFKIN], [MASK_TX] [MASK_75904]
+                                            
+Frost Bank                    
+[MASK_[MASK_LADISLADA] [MASK_ANDRADE]]
+Earnings Statement
+(EKD)    DOUBLE R BRAND FOODS LLC (STAFF)
+Department: 000 / 000 / 0400 - PACKING DAY
+Federal:
+M / 2 / $0.00
+SSN:
+xxx-xx-xxxx
+Pay Period:11/27/2019 to 12/03/2019
+Paycheck Date: [MASK_12/06/2019]
+Paycheck Number:0000103580
+State:
+S / 0 / 0 / $0.00
+Rate:
+Hourly    
+DOUBLE R BRAND FOODS LLC [MASK_800 ELLEN TROUT DRIVE] [MASK_LUFKIN], TEXAS [MASK_75904] 
+
+实体清单（冒号后的标签请查表）
+----------------------------------------------------------
+LADISLADA ANDRADE: FullName
+LADISLADA: FirstName
+ANDRADE: LastName
+12/06/2019: Date
+443 DOUBLE TREE: Address
+LUFKIN: City
+TX: State
+75904: ZipCode
+800 ELLEN TROUT DRIVE: Address

@@ -1,0 +1,66 @@
+找出以下文档中没有被[MASK]框住的实体，将你找到的实体加入清单，并补全/检查清单中的实体类别。
+
+需要找的实体类别有：
+1.人名、人名缩写、姓、名
+2.地址、街道名、街道号、邮编、国家、美国的州、城市
+3.护照号、身份证号、驾照号、银行账号、卡号
+4.时间戳、出生日期、ip地址、硬件地址
+----------------------------------------------------------
+From: 
+[MASK_[MASK_Heather] [MASK_Hatfield]] 
+INVOICE 
+ 
+ 
+Business Name: 
+[MASK_[MASK_Heather] [MASK_Hatfield]] 
+[MASK_[MASK_36441] [MASK_Phillips Underpass] Suite 106] 
+[MASK_New Daniel], [MASK_MT] [MASK_49458] 
+ 
+ 
+INVOICE # 
+T96087065 
+ 
+ 
+DATE 
+[MASK_05/06/2022] 
+ 
+ 
+DUE DATE 
+[MASK_05/06/2022] 
+Bill to: 
+Wilson, Taylor and Kim and Sons 
+TOTAL AMOUNT 
+4382.93 
+ 
+[MASK_[MASK_Brittney] [MASK_Alvarado]] 
+USNS Palmer 
+FPO AE 79899 
+TOTAL DUE 
+4382.93 
+ 
+DESCRIPTION / MEMO 
+AMOUNT 
+Udemy Course Creator 
+4382.93 
+TOTAL AMOUNT: 
+4382.93 
+ 
+Invoice created via
+ 
+ 
+
+实体清单（冒号后的标签请查表）
+----------------------------------------------------------
+Heather Hatfield: FullName
+Heather: FirstName
+Hatfield: LastName
+36441 Phillips Underpass Suite 106: Address
+36441: StreetNumber
+Phillips Underpass: StreetName
+New Daniel: City
+MT: State
+49458: ZipCode
+Brittney Alvarado: FullName
+Brittney: FirstName
+Alvarado: LastName
+05/06/2022: Date

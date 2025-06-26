@@ -1,55 +1,49 @@
-# Label Studio定制化方案
+# Label Studio定制化方案 (极简版)
 
 ## 1. 定制化策略
 
 ### 1.1 核心原则
-- **配置优先**: 通过配置文件实现功能定制，避免修改核心代码
-- **插件扩展**: 使用Django app模式扩展功能
-- **模板定制**: 通过自定义标注模板实现专业化界面
-- **API扩展**: 通过REST API扩展实现批量操作
+- **配置优先**: 仅通过配置文件实现定制，零代码开发
+- **模板驱动**: 通过标注模板实现专业化界面
+- **API调用**: 通过现有API实现所有扩展功能
+- **脚本辅助**: 使用Python脚本实现批量操作
 
 ### 1.2 定制范围
 ```
-Label Studio Core (不修改)
+Label Studio Core (完全使用)
 ├── 用户管理 ✓
 ├── 项目管理 ✓  
 ├── 任务管理 ✓
-└── 基础标注界面 ✓
+├── 基础标注界面 ✓
+└── API接口 ✓
 
-自定义扩展 (新增)
+极简扩展 (配置实现)
 ├── 敏感实体标注模板
-├── 批量任务导入
-├── 质量控制模块
-└── 专业化导出
+├── 批量导入脚本
+└── 结果导出脚本
 ```
 
-## 2. 标注模板配置
+## 2. 标注模板配置 (核心)
 
 ### 2.1 敏感实体NER模板
 ```xml
 <View>
-  <!-- 标注指令区域 -->
-  <View style="box-shadow: 2px 2px 5px #999; padding: 20px; margin-bottom: 2em; background: #f8f9fa;">
-    <Header value="📋 敏感实体标注任务"/>
-    <Text value="请识别文档中的所有敏感实体并进行分类标注，包括被[MASK]遮挡的和未遮挡的敏感信息。"/>
-    
-    <View style="margin-top: 10px; padding: 10px; background: #e9ecef; border-radius: 5px;">
-      <Text value="🎯 标注要求：1) 扫描MASK内容 2) 识别未遮挡敏感信息 3) 复合实体分解"/>
-    </View>
-  </View>
-
-  <!-- 文档内容展示 -->
+  <!-- 任务说明 -->
+  <Header value="敏感实体标注任务"/>
+  <Text value="请识别文档中的所有敏感实体并进行分类标注，包括被[MASK]遮挡的敏感信息"/>
+  
+  <!-- 文档内容显示 -->
   <Text name="text" value="$ocr_content" 
-        style="padding: 20px; border: 1px solid #ddd; border-radius: 5px; background: white; font-family: monospace; line-height: 1.6;"/>
+        style="white-space: pre-wrap; font-family: monospace; border: 1px solid #ddd; padding: 15px; background: #f9f9f9;"/>
 
   <!-- 实体分类标签 -->
-  <Labels name="entity_type" toName="text" choice="multiple">
-    <!-- 人名相关 -->
+  <Labels name="entity_type" toName="text">
+    <!-- 人名相关 (红色系) -->
     <Label value="FullName" background="#dc3545" hotkey="1"/>
     <Label value="FirstName" background="#c82333" hotkey="2"/>  
     <Label value="LastName" background="#e85563" hotkey="3"/>
     
-    <!-- 地址相关 -->
+    <!-- 地址相关 (蓝色系) -->
     <Label value="Address" background="#007bff" hotkey="4"/>
     <Label value="StreetNumber" background="#0056b3" hotkey="5"/>
     <Label value="StreetName" background="#3395ff" hotkey="6"/>
@@ -57,783 +51,321 @@ Label Studio Core (不修改)
     <Label value="State" background="#66b5ff" hotkey="8"/>
     <Label value="ZipCode" background="#1a88ff" hotkey="9"/>
     
-    <!-- 证件号码 -->
+    <!-- 证件号码 (绿色系) -->
     <Label value="InvoiceNumber" background="#28a745" hotkey="q"/>
     <Label value="CompanyName" background="#1e7e34" hotkey="w"/>
     <Label value="CheckNumber" background="#5cb85c" hotkey="e"/>
     
-    <!-- 时间信息 -->
+    <!-- 时间信息 (橙色/紫色) -->
     <Label value="Date" background="#fd7e14" hotkey="r"/>
     <Label value="MilitaryAddress" background="#6f42c1" hotkey="t"/>
   </Labels>
 
-  <!-- 标注结果预览 -->
-  <View style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-    <Header value="✅ 标注结果预览"/>
-    <Text value="已标注实体将在此处实时显示"/>
-  </View>
+  <!-- 快捷键说明 -->
+  <Text value="快捷键: 1-9(人名地址) | q,w,e(证件) | r,t(时间军址)" 
+        style="font-size: 12px; color: #666; margin-top: 10px;"/>
 </View>
 ```
 
-### 2.2 标注配置参数
+### 2.2 模板使用方法
+1. **创建项目时**: 将上述XML复制到Label Studio项目的"Labeling Interface"配置中
+2. **项目设置**: 配置任务分发和审核规则
+3. **用户培训**: 向标注员说明快捷键和标注规范
+
+## 3. 批量导入脚本
+
+### 3.1 简化导入脚本
 ```python
-# apps/sensitive_entity_annotation/templates.py
-SENSITIVE_ENTITY_TEMPLATE = {
-    "title": "敏感实体标注模板",
-    "description": "专用于英文票据OCR文档的敏感实体识别和分类标注",
-    "label_config": LABEL_CONFIG_XML,
-    "expert_instruction": """
-标注专家指导：
-1. 仔细扫描所有[MASK]标记，识别被遮挡的敏感信息类型
-2. 检查未被遮挡的文本，识别潜在的敏感实体
-3. 对复合实体进行分解标注（如：完整姓名 → 姓 + 名）
-4. 确保标注的一致性和完整性
-5. 特别关注：军事地址、公司名称、发票号等特殊实体
-""",
-    "data_fields": {
-        "ocr_content": "OCR处理后的文档内容",
-        "document_name": "文档名称",
-        "task_instruction": "任务指令"
-    }
-}
-```
+#!/usr/bin/env python3
+# scripts/import_ocr_documents.py
 
-## 3. 自定义Django应用
-
-### 3.1 应用结构
-```
-apps/sensitive_entity_annotation/
-├── __init__.py
-├── apps.py
-├── models.py          # 扩展数据模型
-├── views.py           # 自定义API接口
-├── serializers.py     # 数据序列化器
-├── templates.py       # 标注模板定义
-├── signals.py         # 信号处理器
-├── management/        # 管理命令
-│   └── commands/
-│       ├── import_tasks.py
-│       └── export_annotations.py
-└── migrations/        # 数据库迁移
-```
-
-### 3.2 扩展模型定义
-```python
-# apps/sensitive_entity_annotation/models.py
-from django.db import models
-from label_studio.tasks.models import Task, Annotation
-from django.contrib.auth.models import User
-
-class TaskExtension(models.Model):
-    """任务扩展信息"""
-    task = models.OneToOneField(Task, on_delete=models.CASCADE)
-    document_name = models.CharField(max_length=255)
-    ocr_content = models.TextField()
-    task_instruction = models.TextField()
-    entity_categories = models.JSONField(default=dict)
-    priority = models.CharField(max_length=20, default='normal')
-    estimated_time = models.IntegerField(default=15)  # 分钟
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'ls_task_extension'
-
-class QualityControlLog(models.Model):
-    """质量控制记录"""
-    STATUS_CHOICES = [
-        ('pending', '待审核'),
-        ('approved', '通过'),
-        ('rejected', '退回'),
-    ]
-    
-    annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE)
-    reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
-    review_status = models.CharField(max_length=20, choices=STATUS_CHOICES)
-    quality_score = models.DecimalField(max_digits=3, decimal_places=2, null=True)
-    feedback = models.TextField(blank=True)
-    review_time = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'quality_control_log'
-
-class AnnotationStatistics(models.Model):
-    """标注统计"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
-    tasks_completed = models.IntegerField(default=0)
-    entities_annotated = models.IntegerField(default=0)
-    avg_quality_score = models.DecimalField(max_digits=3, decimal_places=2, null=True)
-    total_time_spent = models.IntegerField(default=0)  # 分钟
-
-    class Meta:
-        db_table = 'annotation_statistics'
-        unique_together = ['user', 'date']
-```
-
-### 3.3 批量导入接口
-```python
-# apps/sensitive_entity_annotation/views.py
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from label_studio.projects.models import Project
-from label_studio.tasks.models import Task
-from .models import TaskExtension
+import requests
 import json
+from pathlib import Path
+import argparse
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def bulk_import_tasks(request):
-    """批量导入标注任务"""
-    try:
-        project_id = request.data.get('project_id')
-        tasks_data = request.data.get('tasks', [])
-        
-        if not project_id or not tasks_data:
-            return Response(
-                {'error': '缺少必要参数'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        project = Project.objects.get(id=project_id)
-        created_tasks = []
-        
-        for task_data in tasks_data:
-            # 创建基础任务
-            task = Task.objects.create(
-                project=project,
-                data=task_data['data'],
-                meta=task_data.get('meta', {})
-            )
-            
-            # 创建扩展信息
-            TaskExtension.objects.create(
-                task=task,
-                document_name=task_data['data']['document_name'],
-                ocr_content=task_data['data']['ocr_content'],
-                task_instruction=task_data['data'].get('task_instruction', ''),
-                priority=task_data.get('meta', {}).get('priority', 'normal'),
-                estimated_time=task_data.get('meta', {}).get('estimated_time', 15)
-            )
-            
-            created_tasks.append({
-                'task_id': task.id,
-                'document_name': task_data['data']['document_name']
-            })
-        
-        return Response({
-            'success': True,
-            'created_tasks_count': len(created_tasks),
-            'tasks': created_tasks
-        })
-        
-    except Project.DoesNotExist:
-        return Response(
-            {'error': '项目不存在'}, 
-            status=status.HTTP_404_NOT_FOUND
-        )
-    except Exception as e:
-        return Response(
-            {'error': str(e)}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def export_annotations(request, project_id):
-    """导出标注结果"""
-    try:
-        project = Project.objects.get(id=project_id)
-        tasks = Task.objects.filter(project=project).prefetch_related('annotations')
-        
-        export_data = []
-        for task in tasks:
-            task_extension = getattr(task, 'taskextension', None)
-            
-            for annotation in task.annotations.all():
-                annotation_data = {
-                    'task_id': task.id,
-                    'document_name': task_extension.document_name if task_extension else '',
-                    'ocr_content': task.data.get('ocr_content', ''),
-                    'annotation_result': annotation.result,
-                    'created_at': annotation.created_at.isoformat(),
-                    'annotator': annotation.completed_by.username if annotation.completed_by else None
-                }
-                export_data.append(annotation_data)
-        
-        return Response({
-            'project_id': project_id,
-            'project_title': project.title,
-            'export_time': timezone.now().isoformat(),
-            'annotations_count': len(export_data),
-            'annotations': export_data
-        })
-        
-    except Project.DoesNotExist:
-        return Response(
-            {'error': '项目不存在'}, 
-            status=status.HTTP_404_NOT_FOUND
-        )
-```
-
-## 4. 管理命令
-
-### 4.1 批量导入命令
-```python
-# apps/sensitive_entity_annotation/management/commands/import_tasks.py
-from django.core.management.base import BaseCommand
-from django.db import transaction
-from label_studio.projects.models import Project
-from label_studio.tasks.models import Task
-from apps.sensitive_entity_annotation.models import TaskExtension
-import json
-import os
-
-class Command(BaseCommand):
-    help = '批量导入敏感实体标注任务'
-
-    def add_arguments(self, parser):
-        parser.add_argument('--project-id', type=int, required=True, help='项目ID')
-        parser.add_argument('--data-file', type=str, required=True, help='数据文件路径')
-        parser.add_argument('--batch-size', type=int, default=100, help='批次大小')
-
-    def handle(self, *args, **options):
-        project_id = options['project_id']
-        data_file = options['data_file']
-        batch_size = options['batch_size']
-        
-        try:
-            project = Project.objects.get(id=project_id)
-            self.stdout.write(f"开始导入项目: {project.title}")
-            
-            with open(data_file, 'r', encoding='utf-8') as f:
-                tasks_data = json.load(f)
-            
-            total_tasks = len(tasks_data)
-            created_count = 0
-            
-            # 分批处理
-            for i in range(0, total_tasks, batch_size):
-                batch_data = tasks_data[i:i + batch_size]
-                
-                with transaction.atomic():
-                    for task_data in batch_data:
-                        # 创建任务
-                        task = Task.objects.create(
-                            project=project,
-                            data=task_data['data'],
-                            meta=task_data.get('meta', {})
-                        )
-                        
-                        # 创建扩展信息
-                        TaskExtension.objects.create(
-                            task=task,
-                            document_name=task_data['data']['document_name'],
-                            ocr_content=task_data['data']['ocr_content'],
-                            task_instruction=task_data['data'].get('task_instruction', ''),
-                            priority=task_data.get('meta', {}).get('priority', 'normal')
-                        )
-                        
-                        created_count += 1
-                
-                self.stdout.write(f"已导入 {created_count}/{total_tasks} 个任务")
-            
-            self.stdout.write(
-                self.style.SUCCESS(f'成功导入 {created_count} 个标注任务')
-            )
-            
-        except Project.DoesNotExist:
-            self.stdout.write(
-                self.style.ERROR(f'项目 {project_id} 不存在')
-            )
-        except FileNotFoundError:
-            self.stdout.write(
-                self.style.ERROR(f'数据文件 {data_file} 不存在')
-            )
-        except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f'导入失败: {str(e)}')
-            )
-```
-
-### 4.2 导出命令
-```python
-# apps/sensitive_entity_annotation/management/commands/export_annotations.py
-from django.core.management.base import BaseCommand
-from label_studio.projects.models import Project
-from label_studio.tasks.models import Task
-import json
-import os
-from datetime import datetime
-
-class Command(BaseCommand):
-    help = '导出敏感实体标注结果'
-
-    def add_arguments(self, parser):
-        parser.add_argument('--project-id', type=int, required=True)
-        parser.add_argument('--output-file', type=str, required=True)
-        parser.add_argument('--format', choices=['json', 'csv'], default='json')
-
-    def handle(self, *args, **options):
-        project_id = options['project_id']
-        output_file = options['output_file']
-        export_format = options['format']
-        
-        try:
-            project = Project.objects.get(id=project_id)
-            tasks = Task.objects.filter(project=project).prefetch_related('annotations')
-            
-            export_data = []
-            for task in tasks:
-                task_extension = getattr(task, 'taskextension', None)
-                
-                for annotation in task.annotations.all():
-                    if export_format == 'json':
-                        item = {
-                            'task_id': task.id,
-                            'document_name': task_extension.document_name if task_extension else '',
-                            'ocr_content': task.data.get('ocr_content', ''),
-                            'annotation_result': annotation.result,
-                            'created_at': annotation.created_at.isoformat(),
-                            'annotator': annotation.completed_by.username if annotation.completed_by else None
-                        }
-                    else:  # CSV format
-                        # 解析annotation result，转换为实体列表
-                        entities = self.parse_annotation_result(annotation.result)
-                        for entity in entities:
-                            item = {
-                                'task_id': task.id,
-                                'document_name': task_extension.document_name if task_extension else '',
-                                'entity_text': entity['text'],
-                                'entity_type': entity['type'],
-                                'start_offset': entity['start'],
-                                'end_offset': entity['end'],
-                                'annotator': annotation.completed_by.username if annotation.completed_by else None
-                            }
-                            export_data.append(item)
-                        continue
-                    
-                    export_data.append(item)
-            
-            # 保存文件
-            if export_format == 'json':
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    json.dump({
-                        'project_id': project_id,
-                        'project_title': project.title,
-                        'export_time': datetime.now().isoformat(),
-                        'annotations_count': len(export_data),
-                        'annotations': export_data
-                    }, f, ensure_ascii=False, indent=2)
-            else:
-                import csv
-                if export_data:
-                    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.DictWriter(f, fieldnames=export_data[0].keys())
-                        writer.writeheader()
-                        writer.writerows(export_data)
-            
-            self.stdout.write(
-                self.style.SUCCESS(f'成功导出 {len(export_data)} 条标注结果到 {output_file}')
-            )
-            
-        except Project.DoesNotExist:
-            self.stdout.write(
-                self.style.ERROR(f'项目 {project_id} 不存在')
-            )
-
-    def parse_annotation_result(self, result):
-        """解析标注结果，提取实体信息"""
-        entities = []
-        for item in result:
-            if item.get('type') == 'labels':
-                entities.append({
-                    'text': item['value']['text'],
-                    'type': item['value']['labels'][0] if item['value']['labels'] else '',
-                    'start': item['value']['start'],
-                    'end': item['value']['end']
-                })
-        return entities
-```
-
-## 5. 前端定制
-
-### 5.1 自定义CSS样式
-```css
-/* static/css/sensitive_entity_annotation.css */
-.sensitive-entity-panel {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.category-group {
-    margin-bottom: 15px;
-    padding: 10px;
-    background: white;
-    border-radius: 3px;
-    border-left: 4px solid #007bff;
-}
-
-.category-group h4 {
-    margin: 0 0 10px 0;
-    color: #495057;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.label-item {
-    display: inline-block;
-    margin: 3px 5px 3px 0;
-    padding: 4px 8px;
-    background: #e9ecef;
-    border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.label-item:hover {
-    background: #dee2e6;
-}
-
-.label-item.selected {
-    background: #007bff;
-    color: white;
-}
-
-.annotation-preview {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 15px;
-    margin-top: 15px;
-}
-
-.entity-list {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.entity-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 10px;
-    margin: 3px 0;
-    background: #f8f9fa;
-    border-radius: 3px;
-    font-size: 12px;
-}
-
-.entity-text {
-    font-weight: 500;
-    color: #495057;
-}
-
-.entity-type {
-    padding: 2px 6px;
-    background: #6c757d;
-    color: white;
-    border-radius: 2px;
-    font-size: 10px;
-}
-
-.delete-btn {
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 2px;
-    padding: 2px 6px;
-    font-size: 10px;
-    cursor: pointer;
-}
-
-/* 快捷键提示 */
-.hotkey-help {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    z-index: 1000;
-}
-```
-
-### 5.2 JavaScript增强
-```javascript
-// static/js/sensitive_entity_annotation.js
-(function() {
-    'use strict';
+def import_documents(api_url, api_token, project_id, data_dir):
+    """批量导入OCR文档"""
     
-    // 实体类别快捷键映射
-    const HOTKEY_MAPPING = {
-        '1': 'FullName',
-        '2': 'FirstName', 
-        '3': 'LastName',
-        '4': 'Address',
-        '5': 'StreetNumber',
-        '6': 'StreetName',
-        '7': 'City',
-        '8': 'State',
-        '9': 'ZipCode',
-        'q': 'InvoiceNumber',
-        'w': 'CompanyName',
-        'e': 'CheckNumber',
-        'r': 'Date',
-        't': 'MilitaryAddress'
-    };
+    print(f"🚀 开始导入OCR文档到项目 {project_id}")
     
-    // 初始化增强功能
-    function initSensitiveEntityEnhancements() {
-        addHotkeySupport();
-        addEntityCounter();
-        addProgressTracker();
-        addValidationHelper();
-    }
-    
-    // 添加快捷键支持
-    function addHotkeySupport() {
-        document.addEventListener('keydown', function(e) {
-            // 仅在选择了文本时触发
-            if (window.getSelection().toString() && HOTKEY_MAPPING[e.key]) {
-                e.preventDefault();
-                applyEntityLabel(HOTKEY_MAPPING[e.key]);
+    # 准备任务数据
+    tasks = []
+    for txt_file in Path(data_dir).glob("*.txt"):
+        print(f"📄 读取文件: {txt_file.name}")
+        
+        with open(txt_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # 创建任务数据
+        task = {
+            "data": {
+                "ocr_content": content,
+                "document_name": txt_file.name
             }
-        });
-    }
-    
-    // 应用实体标签
-    function applyEntityLabel(labelType) {
-        const selection = window.getSelection();
-        if (!selection.toString()) return;
-        
-        // 触发Label Studio的标注事件
-        const event = new CustomEvent('labelApply', {
-            detail: {
-                labelType: labelType,
-                text: selection.toString(),
-                range: selection.getRangeAt(0)
-            }
-        });
-        document.dispatchEvent(event);
-    }
-    
-    // 添加实体计数器
-    function addEntityCounter() {
-        const counterEl = document.createElement('div');
-        counterEl.id = 'entity-counter';
-        counterEl.className = 'entity-counter';
-        counterEl.innerHTML = '已标注实体: <span class="count">0</span>';
-        
-        // 插入到合适位置
-        const targetEl = document.querySelector('.lsf-annotation-tab') || document.body;
-        targetEl.appendChild(counterEl);
-        
-        // 监听标注变化
-        document.addEventListener('annotationUpdate', updateEntityCounter);
-    }
-    
-    // 更新实体计数
-    function updateEntityCounter() {
-        const annotations = document.querySelectorAll('.htx-annotation');
-        const countEl = document.querySelector('#entity-counter .count');
-        if (countEl) {
-            countEl.textContent = annotations.length;
         }
-    }
+        tasks.append(task)
     
-    // 添加进度跟踪
-    function addProgressTracker() {
-        const progressEl = document.createElement('div');
-        progressEl.className = 'progress-tracker';
-        progressEl.innerHTML = `
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 0%"></div>
-            </div>
-            <div class="progress-text">进度: 0%</div>
-        `;
-        
-        document.body.appendChild(progressEl);
-        
-        // 定期更新进度
-        setInterval(updateProgress, 1000);
-    }
+    if not tasks:
+        print("❌ 没有找到txt文件")
+        return
     
-    // 更新进度
-    function updateProgress() {
-        // 根据标注完成情况计算进度
-        const requiredEntities = countRequiredEntities();
-        const annotatedEntities = countAnnotatedEntities();
-        const progress = requiredEntities > 0 ? (annotatedEntities / requiredEntities) * 100 : 0;
-        
-        const progressFill = document.querySelector('.progress-fill');
-        const progressText = document.querySelector('.progress-text');
-        
-        if (progressFill && progressText) {
-            progressFill.style.width = `${Math.min(progress, 100)}%`;
-            progressText.textContent = `进度: ${Math.round(progress)}%`;
-        }
-    }
+    # 批量导入
+    print(f"📤 导入 {len(tasks)} 个文档...")
+    response = requests.post(
+        f"{api_url}/api/projects/{project_id}/import",
+        headers={
+            "Authorization": f"Token {api_token}",
+            "Content-Type": "application/json"
+        },
+        json=tasks
+    )
     
-    // 计算需要标注的实体数量（基于MASK标记）
-    function countRequiredEntities() {
-        const content = document.querySelector('[name="text"]')?.textContent || '';
-        const maskMatches = content.match(/\[MASK_[^\]]+\]/g) || [];
-        return maskMatches.length;
-    }
+    if response.status_code == 201:
+        print(f"✅ 成功导入 {len(tasks)} 个文档")
+    else:
+        print(f"❌ 导入失败: {response.status_code} - {response.text}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='批量导入OCR文档')
+    parser.add_argument('--api-url', default='http://localhost:8080')
+    parser.add_argument('--api-token', required=True)
+    parser.add_argument('--project-id', required=True, type=int)
+    parser.add_argument('--data-dir', default='./demo_data')
     
-    // 计算已标注的实体数量
-    function countAnnotatedEntities() {
-        return document.querySelectorAll('.htx-annotation').length;
-    }
-    
-    // 添加验证助手
-    function addValidationHelper() {
-        const helperEl = document.createElement('div');
-        helperEl.className = 'validation-helper';
-        helperEl.innerHTML = `
-            <button type="button" onclick="validateAnnotation()">验证标注</button>
-            <div class="validation-results"></div>
-        `;
-        
-        document.body.appendChild(helperEl);
-    }
-    
-    // 验证标注
-    window.validateAnnotation = function() {
-        const results = [];
-        
-        // 检查是否有未标注的MASK
-        const content = document.querySelector('[name="text"]')?.textContent || '';
-        const masks = content.match(/\[MASK_[^\]]+\]/g) || [];
-        const annotations = document.querySelectorAll('.htx-annotation');
-        
-        if (masks.length > annotations.length) {
-            results.push(`⚠️ 发现 ${masks.length - annotations.length} 个可能未标注的MASK`);
-        }
-        
-        // 检查标注的一致性
-        const entityTypes = Array.from(annotations).map(el => el.dataset.label);
-        const duplicates = findDuplicateEntities(entityTypes);
-        if (duplicates.length > 0) {
-            results.push(`⚠️ 发现重复标注: ${duplicates.join(', ')}`);
-        }
-        
-        // 显示验证结果
-        const resultsEl = document.querySelector('.validation-results');
-        if (resultsEl) {
-            resultsEl.innerHTML = results.length > 0 
-                ? results.map(r => `<div>${r}</div>`).join('')
-                : '<div style="color: green;">✅ 标注验证通过</div>';
-        }
-    };
-    
-    // 查找重复实体
-    function findDuplicateEntities(entities) {
-        const seen = new Set();
-        const duplicates = [];
-        
-        entities.forEach(entity => {
-            if (seen.has(entity)) {
-                duplicates.push(entity);
-            } else {
-                seen.add(entity);
-            }
-        });
-        
-        return [...new Set(duplicates)];
-    }
-    
-    // 页面加载完成后初始化
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSensitiveEntityEnhancements);
-    } else {
-        initSensitiveEntityEnhancements();
-    }
-})();
+    args = parser.parse_args()
+    import_documents(args.api_url, args.api_token, args.project_id, args.data_dir)
 ```
 
-## 6. 集成配置
-
-### 6.1 settings.py配置
-```python
-# label_studio/settings/custom.py
-from label_studio.core.settings.base import *
-
-# 添加自定义应用
-INSTALLED_APPS += [
-    'apps.sensitive_entity_annotation',
-]
-
-# 自定义中间件
-MIDDLEWARE += [
-    'apps.sensitive_entity_annotation.middleware.SensitiveDataMiddleware',
-]
-
-# 敏感实体标注配置
-SENSITIVE_ENTITY_CONFIG = {
-    'MAX_BATCH_SIZE': 1000,  # 最大批量导入大小
-    'DEFAULT_PRIORITY': 'normal',
-    'ENABLE_AUTO_VALIDATION': True,
-    'QUALITY_THRESHOLD': 0.95,
-    'EXPORT_FORMATS': ['json', 'csv', 'xlsx'],
-}
-
-# 静态文件配置
-STATICFILES_DIRS += [
-    os.path.join(BASE_DIR, 'apps/sensitive_entity_annotation/static'),
-]
-
-# 模板配置
-TEMPLATES[0]['DIRS'] += [
-    os.path.join(BASE_DIR, 'apps/sensitive_entity_annotation/templates'),
-]
-```
-
-### 6.2 URL配置
-```python
-# apps/sensitive_entity_annotation/urls.py
-from django.urls import path
-from . import views
-
-app_name = 'sensitive_entity_annotation'
-
-urlpatterns = [
-    path('api/bulk-import/', views.bulk_import_tasks, name='bulk_import_tasks'),
-    path('api/export/<int:project_id>/', views.export_annotations, name='export_annotations'),
-    path('api/quality-review/<int:annotation_id>/', views.quality_review, name='quality_review'),
-    path('api/statistics/<int:user_id>/', views.user_statistics, name='user_statistics'),
-]
-
-# 在主urls.py中包含
-# path('sensitive-entity/', include('apps.sensitive_entity_annotation.urls')),
-```
-
-## 7. 部署集成
-
-### 7.1 Docker集成
-```dockerfile
-# 在主Dockerfile中添加
-COPY apps/sensitive_entity_annotation/ /label-studio/apps/sensitive_entity_annotation/
-COPY static/css/sensitive_entity_annotation.css /label-studio/static/css/
-COPY static/js/sensitive_entity_annotation.js /label-studio/static/js/
-
-# 安装额外依赖
-RUN pip install openpyxl pandas
-```
-
-### 7.2 环境变量
+### 3.2 使用方法
 ```bash
-# .env文件添加
-SENSITIVE_ENTITY_MAX_BATCH_SIZE=1000
-SENSITIVE_ENTITY_ENABLE_AUTO_VALIDATION=true
-SENSITIVE_ENTITY_QUALITY_THRESHOLD=0.95
+# 获取API Token: Label Studio界面 -> Account -> Access Token
+python scripts/import_ocr_documents.py \
+    --api-token "你的API_TOKEN" \
+    --project-id 1 \
+    --data-dir ./demo_data/
 ```
 
-这个定制化方案通过配置、扩展和增强的方式，在不修改Label Studio核心代码的前提下，实现了专业的敏感实体标注功能。 
+## 4. 结果导出脚本
+
+### 4.1 简化导出脚本
+```python
+#!/usr/bin/env python3
+# scripts/export_annotations.py
+
+import requests
+import csv
+import json
+from datetime import datetime
+import argparse
+
+def export_annotations(api_url, api_token, project_id, output_format='csv'):
+    """导出标注结果"""
+    
+    print(f"📥 从项目 {project_id} 导出标注结果...")
+    
+    # 获取完整的标注数据
+    response = requests.get(
+        f"{api_url}/api/projects/{project_id}/export",
+        headers={"Authorization": f"Token {api_token}"},
+        params={"exportType": "JSON"}
+    )
+    
+    if response.status_code != 200:
+        print(f"❌ 导出失败: {response.status_code} - {response.text}")
+        return
+    
+    data = response.json()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    if output_format == 'csv':
+        # 导出为CSV格式
+        output_file = f"annotations_export_{timestamp}.csv"
+        export_to_csv(data, output_file)
+    else:
+        # 导出为JSON格式
+        output_file = f"annotations_export_{timestamp}.json"
+        export_to_json(data, output_file)
+    
+    print(f"✅ 导出完成: {output_file}")
+
+def export_to_csv(data, output_file):
+    """导出为CSV格式"""
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Document', 'Entity_Text', 'Entity_Label', 'Start_Pos', 'End_Pos', 'Annotator', 'Created_At'])
+        
+        for item in data:
+            document = item['data'].get('document_name', 'unknown')
+            
+            for annotation in item.get('annotations', []):
+                annotator = annotation.get('completed_by', 'unknown')
+                created_at = annotation.get('created_at', '')
+                
+                for result in annotation.get('result', []):
+                    if result.get('type') == 'labels':
+                        writer.writerow([
+                            document,
+                            result['value']['text'],
+                            result['value']['labels'][0] if result['value']['labels'] else '',
+                            result['value']['start'],
+                            result['value']['end'],
+                            annotator,
+                            created_at
+                        ])
+
+def export_to_json(data, output_file):
+    """导出为JSON格式"""
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='导出标注结果')
+    parser.add_argument('--api-url', default='http://localhost:8080')
+    parser.add_argument('--api-token', required=True)
+    parser.add_argument('--project-id', required=True, type=int)
+    parser.add_argument('--format', choices=['csv', 'json'], default='csv')
+    
+    args = parser.parse_args()
+    export_annotations(args.api_url, args.api_token, args.project_id, args.format)
+```
+
+## 5. Label Studio配置优化
+
+### 5.1 项目设置推荐
+```json
+{
+  "title": "敏感实体标注项目",
+  "description": "英文票据OCR文档敏感实体识别与分类标注",
+  "label_config": "<!-- 上面的XML模板 -->",
+  "maximum_annotations": 1,
+  "show_annotation_history": true,
+  "show_overlap_first": true,
+  "overlap_cohort_percentage": 10,
+  "show_skip_button": true,
+  "show_submit_button": true,
+  "show_hotkeys_help": true,
+  "enable_empty_annotation": false
+}
+```
+
+### 5.2 质量控制设置
+```json
+{
+  "review_settings": {
+    "require_review": false,
+    "review_percentage": 10,
+    "auto_accept_predictions": false
+  },
+  "annotation_settings": {
+    "show_labels_hotkey_help": true,
+    "preserve_selected_tool": true,
+    "select_unlabeled_first": true
+  }
+}
+```
+
+## 6. 用户角色管理
+
+### 6.1 通过Web界面设置
+1. **管理员**: 创建项目、管理用户、导入数据
+2. **标注员**: 执行标注任务
+3. **审核员**: 质量审核（可选）
+
+### 6.2 权限控制
+- 使用Label Studio内置的用户权限系统
+- 不需要自定义权限模块
+- 通过项目成员管理实现访问控制
+
+## 7. 监控和统计
+
+### 7.1 通过Label Studio界面
+- **项目概览**: 任务进度、完成情况
+- **用户统计**: 标注员工作量统计
+- **质量指标**: 通过审核功能查看质量
+
+### 7.2 简单统计脚本
+```python
+# scripts/get_stats.py
+def get_project_stats(api_url, api_token, project_id):
+    """获取项目统计信息"""
+    
+    # 获取任务统计
+    tasks_response = requests.get(
+        f"{api_url}/api/projects/{project_id}/tasks",
+        headers={"Authorization": f"Token {api_token}"}
+    )
+    tasks = tasks_response.json()
+    
+    # 获取标注统计
+    annotations_response = requests.get(
+        f"{api_url}/api/projects/{project_id}/export",
+        headers={"Authorization": f"Token {api_token}"}
+    )
+    annotations = annotations_response.json()
+    
+    # 计算统计指标
+    total_tasks = len(tasks)
+    completed_tasks = len([a for a in annotations if a.get('annotations')])
+    completion_rate = completed_tasks / total_tasks if total_tasks > 0 else 0
+    
+    print(f"📊 项目统计:")
+    print(f"   总任务数: {total_tasks}")
+    print(f"   已完成: {completed_tasks}")
+    print(f"   完成率: {completion_rate:.1%}")
+```
+
+## 8. 部署和维护
+
+### 8.1 配置文件管理
+```
+configs/
+├── entity_labeling_config.xml    # 标注模板
+├── project_settings.json         # 项目设置
+└── user_guide.md                 # 用户使用指南
+```
+
+### 8.2 脚本工具
+```
+scripts/
+├── import_ocr_documents.py       # 批量导入
+├── export_annotations.py         # 结果导出
+├── get_stats.py                  # 统计信息
+└── backup_project.py             # 项目备份
+```
+
+## 9. 最佳实践
+
+### 9.1 标注规范
+1. **一致性**: 相同类型实体使用相同标签
+2. **完整性**: 不遗漏任何敏感实体
+3. **准确性**: 确保标注边界准确
+
+### 9.2 质量保证
+1. **培训**: 标注员培训和测试
+2. **抽检**: 定期质量抽检
+3. **反馈**: 及时纠错和改进
+
+### 9.3 效率提升
+1. **快捷键**: 充分利用快捷键操作
+2. **批处理**: 合理安排批量操作
+3. **模板**: 使用标准化的标注模板
+
+## 10. 扩展可能
+
+### 10.1 如需更多功能
+- **预标注**: 集成NLP模型进行预标注
+- **主动学习**: 基于已标注数据优化工作流
+- **质量控制**: 更复杂的多轮审核机制
+- **统计分析**: 更详细的数据分析和报表
+
+### 10.2 渐进式升级
+当前极简方案作为起点，可根据实际需求渐进式添加功能：
+1. 先使用基础功能验证流程
+2. 根据使用反馈识别改进点
+3. 渐进式添加高级功能
+4. 保持系统简洁性
+
+---
+
+**总结**: 此方案完全基于Label Studio原生能力，通过配置和脚本实现所有必要功能，确保系统简单、可靠、易维护。 

@@ -1,0 +1,28 @@
+From: 
+[MASK_[MASK_Heather] [MASK_Hatfield]] 
+INVOICE 
+ 
+Business Name: 
+[MASK_[MASK_Heather] [MASK_Hatfield]] 
+[MASK_[MASK_36441] [MASK_Phillips Underpass] Suite 106] 
+[MASK_New Daniel], [MASK_MT] [MASK_49458] 
+ 
+INVOICE # 
+T96087065 
+ 
+DATE 
+[MASK_05/06/2022] 
+ 
+DUE DATE 
+[MASK_05/06/2022] 
+
+Bill to: 
+Wilson, Taylor and Kim and Sons 
+TOTAL AMOUNT 
+4382.93 
+ 
+[MASK_[MASK_Brittney] [MASK_Alvarado]] 
+USNS Palmer 
+FPO AE 79899 
+TOTAL DUE 
+4382.93 

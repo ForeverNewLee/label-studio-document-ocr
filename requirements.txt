@@ -1,0 +1,13 @@
+# 敏感实体标注服务依赖包
+# 基于Label Studio的极简架构实现
+
+# 核心依赖
+label-studio>=1.9.0
+requests>=2.25.0
+
+# 类型检查和代码质量
+mypy>=1.0.0
+ruff>=0.1.0
+
+# 其他工具依赖
+pathlib2>=2.3.0; python_version < "3.4" 

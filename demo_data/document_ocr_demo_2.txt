@@ -1,0 +1,26 @@
+RECEIPT
+Store Name: [MASK_QuickMart Express]
+[MASK_[MASK_1245] [MASK_Oak Street]]
+[MASK_Springfield], [MASK_IL] [MASK_62701]
+
+Date: [MASK_03/15/2023]
+Time: [MASK_14:25:33]
+Cashier: [MASK_[MASK_Sarah] [MASK_Johnson]]
+
+Transaction ID: TXN789456123
+Receipt Number: [MASK_R-2023-0315-442]
+
+Customer: [MASK_[MASK_Michael] [MASK_Roberts]]
+Customer ID: [MASK_CUST-445667]
+Phone: [MASK_555-123-4567]
+
+Items:
+Groceries        $45.67
+Tax              $3.65
+TOTAL           $49.32
+
+Payment Method: Credit Card
+Card Number: [MASK_****-****-****-4567]
+Authorization: [MASK_AUTH789654]
+
+Thank you for shopping at QuickMart! 

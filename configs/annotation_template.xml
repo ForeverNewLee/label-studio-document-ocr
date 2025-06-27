@@ -1,0 +1,59 @@
+<View>
+  <!-- 标注任务说明 -->
+  <Header value="敏感实体标注任务"/>
+  <Text value="请识别文档中的所有敏感实体并进行分类标注，包括被[MASK]遮挡的敏感信息"/>
+  
+  <!-- 快捷说明 -->
+  <Text value="快捷键: 1-9(人名地址) | q,w,e,r,t(证件时间) | 鼠标选择文本后按对应键分类" 
+        style="font-size: 12px; color: #666; margin-bottom: 10px; padding: 8px; background: #f0f8ff; border-radius: 4px;"/>
+  
+  <!-- 文档内容显示区域 -->
+  <Text name="text" value="$ocr_content" 
+        style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; 
+               line-height: 1.6; border: 2px solid #ddd; padding: 20px; background: #fafafa; 
+               border-radius: 6px; max-height: 500px; overflow-y: auto;"/>
+
+  <!-- 实体分类标签 -->
+  <Labels name="entity_type" toName="text">
+    <!-- 人名相关 (红色系) -->
+    <Label value="FullName" background="#dc3545" hotkey="1" 
+           title="完整姓名 (如: John Smith, 张三)"/>
+    <Label value="FirstName" background="#c82333" hotkey="2" 
+           title="名字 (如: John, 三)"/>  
+    <Label value="LastName" background="#e85563" hotkey="3" 
+           title="姓氏 (如: Smith, 张)"/>
+    
+    <!-- 地址相关 (蓝色系) -->
+    <Label value="Address" background="#007bff" hotkey="4" 
+           title="完整地址 (如: 123 Main St Suite 100)"/>
+    <Label value="StreetNumber" background="#0056b3" hotkey="5" 
+           title="街道号码 (如: 123, 456)"/>
+    <Label value="StreetName" background="#3395ff" hotkey="6" 
+           title="街道名称 (如: Main Street, 中山路)"/>
+    <Label value="City" background="#004085" hotkey="7" 
+           title="城市 (如: New York, 北京)"/>
+    <Label value="State" background="#66b5ff" hotkey="8" 
+           title="州/省 (如: CA, TX, 北京市)"/>
+    <Label value="ZipCode" background="#1a88ff" hotkey="9" 
+           title="邮政编码 (如: 12345, 100000)"/>
+    
+    <!-- 证件号码 (绿色系) -->
+    <Label value="InvoiceNumber" background="#28a745" hotkey="q" 
+           title="发票/单据号 (如: T96087065, INV-2023-001)"/>
+    <Label value="CompanyName" background="#1e7e34" hotkey="w" 
+           title="公司/组织名称"/>
+    <Label value="CheckNumber" background="#5cb85c" hotkey="e" 
+           title="支票号码/凭证号"/>
+    
+    <!-- 时间信息 (橙色/紫色) -->
+    <Label value="Date" background="#fd7e14" hotkey="r" 
+           title="日期时间 (如: 05/06/2022, 2023-12-01)"/>
+    <Label value="MilitaryAddress" background="#6f42c1" hotkey="t" 
+           title="军事地址 (如: FPO, APO, USNS)"/>
+  </Labels>
+
+  <!-- 标注说明和提示 -->
+  <Text value="标注说明：选择文本片段后，按快捷键或点击对应标签进行分类。重点关注个人身份信息(PII)、地址、时间、证件号等敏感信息。" 
+        style="font-size: 11px; color: #555; margin-top: 15px; padding: 10px; 
+               background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;"/>
+</View> 

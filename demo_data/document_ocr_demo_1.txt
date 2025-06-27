@@ -1,0 +1,15 @@
+DOUBLE R BRAND FOODS LLC                                    
+[MASK_800 ELLEN TROUT DRIVE]                   
+[MASK_LUFKIN], TEXAS [MASK_75904]                     
+
+PAY $501.33
+To the order of:
+[MASK_[MASK_LADISLADA] [MASK_ANDRADE]]
+[MASK_443 DOUBLE TREE]               
+[MASK_LUFKIN], [MASK_TX] [MASK_75904]
+
+Date: [MASK_12/06/2019]
+Earnings Statement
+Pay Period: 11/27/2019 to 12/03/2019
+Paycheck Date: [MASK_12/06/2019]
+Paycheck Number: 0000103580 
